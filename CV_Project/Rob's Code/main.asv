@@ -1,10 +1,15 @@
 %% Load Avg MHI's
 
-yimg = double(imread('Y/yAVG.png'));
-figure();
-imagesc(yimg);
-y_nval = similitudeMoments(yimg);
+yimg = double(imread('MHIs/Y/yAVG.png'));
+%figure();
+%imagesc(yimg);
+y_nval(1,:) = similitudeMoments(yimg);
 
 for i=0:5
-   imgi+1) =  double(imread('Y/Individuals/y0' + i + '.png'));
+   file =  sprintf('MHIs/Y/Individuals/y0%1d.png',i);
+   img(:,:,i+1) = double(imread(file));
+   y_nval(i+2,:) = similitudeMoments(img(:,:,i+1));
+end
+for i=1:7
+   stddev(i)  
 end
