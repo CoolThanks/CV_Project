@@ -1,0 +1,10 @@
+%% Load Avg MHI's
+
+yimg = double(imread('Y/yAVG.png'));
+figure();
+imagesc(yimg);
+y_nval = similitudeMoments(yimg);
+
+for i=0:5
+   imgi+1) =  double(imread('Y/Individuals/y0' + i + '.png'));
+end
