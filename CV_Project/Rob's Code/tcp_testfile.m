@@ -1,11 +1,18 @@
-t = tcpip('localhost', 10000, 'NetworkRole', 'client');
-fopen(t);
-score = 0;
-check = "ok";
-while(check ~= "done")
-    check = fread(t);
-    if(check == "good")
-        score = score + 500;
+function  tcp_connect()
+    %% tcp stuff
+
+    t = tcpip('127.0.0.1', 10000, 'NetworkRole', 'server');
+    fopen(t);
+    fprintf("connected\n");
+    for i=1:3
+    fwrite(t, "good");
+    %     x = fscanf(t);
+    %     fprintf('%s',x);
+    %     if x == "done"
+    %         break;
+    %     end
+    pause(1);
     end
-    fwrite(t,"ok")
+    fwrite(t,"done");
+    fclose(t);
 end

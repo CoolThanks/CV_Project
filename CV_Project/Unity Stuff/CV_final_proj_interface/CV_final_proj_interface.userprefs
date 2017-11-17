@@ -3,7 +3,7 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\my_testFile.cs">
     <Files>
       <File FileName="..\..\..\..\..\..\..\Unity  Programs\something\Assets\NewBehaviourScript.cs" Line="8" Column="1" />
-      <File FileName="Assets\my_testFile.cs" Line="48" Column="4" />
+      <File FileName="Assets\my_testFile.cs" Line="21" Column="17" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
