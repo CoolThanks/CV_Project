@@ -8,8 +8,21 @@ y_nval(1,:) = similitudeMoments(yimg);
 for i=0:5
    file =  sprintf('MHIs/Y/Individuals/y0%1d.png',i);
    img(:,:,i+1) = double(imread(file));
+   figure(i+1);
+   imagesc(img(:,:,i+1));
    y_nval(i+2,:) = similitudeMoments(img(:,:,i+1));
 end
 for i=1:7
-   stddev(i)  
+   stddev(i) = std(y_nval(:,i));
+   means(i) = mean(y_nval(:,i));
+end
+
+
+%% tcp stuff
+
+t = tcpip('0.0.0.0', 30000, 'NetworkRole', 'server');
+fopen(t);
+for i=1:3
+    fwrite(t, "good");
+    x = frea
 end
