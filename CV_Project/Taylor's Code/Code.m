@@ -10,7 +10,7 @@ counter = 1;
 notI=2;
 k=1;
 T = 10;
-v = VideoReader('c00.mp4');
+v = VideoReader('a11.mp4');
 mov = struct('cdata',zeros(360,640,1,'uint8'),...
     'colormap',[]);
 
@@ -55,4 +55,4 @@ end
 
 MHIImage = max(0,(MHIImage-1)/counter);
 imagesc(MHIImage);
-imwrite(MHIImage,'c00.png');
+imwrite(MHIImage,'a09.png');

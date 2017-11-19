@@ -1,4 +1,4 @@
-cam = webcam; MHIImage = zeros(100,100); T = 10; colormap(gray); numberOfTrainingImages = 6;
+cam = webcam; MHIImage = zeros(100,100); T = 10; colormap(gray); numberOfTrainingImages = 5;
 
 %Read y
 for i=1:numberOfTrainingImages
@@ -40,100 +40,91 @@ for i=1:numberOfTrainingImages
     aSTD = std(aImgs,[],3);
 end
 
-    for i=1:22
-        img = snapshot(cam);
-        img = rgb2gray(img);
-        img = imresize(img,[100 100]);
-        imgs(:,:,i) = img;
-        pause(0.10);
-    end
+pause(3);
+fprintf('GO!');
 
-    rows = size(imgs(:,:,1), 1);
-    columns = size(imgs(:,:,1),2);
+for i=1:22
+    img = snapshot(cam);
+    img = rgb2gray(img);
+    img = imresize(img,[100 100]);
+    img = double(img);
+    filtered = imbinarize(img);
+    filtered = medfilt2(filtered, [5 5]);
+    filtered = bwareafilt(filtered,2);
+    filtered = imfill(filtered,'holes');
+    filtered = img.*filtered;
+    imgs(:,:,i) = filtered;
+    pause(0.10);
+end
 
-    for i = 2:21
-        for num_cols = 1:columns
-            for num_rows = 1:rows
-                if abs(imgs(num_rows,num_cols,i)-imgs(num_rows,num_cols,i-1)) > T
-                    imgs(num_rows, num_cols,i-1) = 1;
-                else
-                    imgs(num_rows, num_cols,i-1) = 0;
-                end
+rows = size(imgs(:,:,1), 1);
+columns = size(imgs(:,:,1),2);
+
+for i = 2:21
+    for num_cols = 1:columns
+        for num_rows = 1:rows
+            if abs(imgs(num_rows,num_cols,i)-imgs(num_rows,num_cols,i-1)) > T
+                imgs(num_rows, num_cols,i-1) = 1;
+            else
+                imgs(num_rows, num_cols,i-1) = 0;
             end
         end
     end
+end
 
-    for i=2:20
-        for num_cols = 1:columns
-            for num_rows = 1:rows
-                if (imgs(num_rows,num_cols,i) ~= 0)
-                    MHIImage(num_rows, num_cols) = i;
-                end
+for i=2:20
+    for num_cols = 1:columns
+        for num_rows = 1:rows
+            if (imgs(num_rows,num_cols,i) ~= 0)
+                MHIImage(num_rows, num_cols) = i;
             end
         end
     end
+end
 
-    MHIImage = max(0,(MHIImage-1)/21);
-    imwrite(MHIImage,'test.png');
-    
-    thresh = 8000;
-    goodCounter = 0;
-    best = 0;
-    
-    for i=1:4
-        if i == 1
-            for num_cols = 1:columns
-                for num_rows = 1:rows
-                    if abs(MHIImage(num_rows,num_cols)-yImgs(num_rows,num_cols,1)) >
-                end
-            end
+MHIImage = max(0,(MHIImage-1)/21);
+imwrite(MHIImage,'test.png');
+
+movement = determineMovement(imgs, ySTD, mSTD, cSTD, aSTD);
+
+
+
+%Now compare it to our test images and find one in threshold
+best = 0; pos = 0;
+for i=1:4
+    im = testimages(:,:,i);
+    MHIImage = double(imread('s00.png'));
+    dist = sqrt(sum((im(:) - MHIImage(:)) .^2));
+    test = mean(im);
+    stdDev = std(double(MHIImage));
+    val = stdDev1 - stdDev2;
+    %err = immse(im,MHIImage);
+    err = ssim(im,MHIImage)
+    K = imabsdiff(im,MHIImage);
+
+    if err < 1500
+        if err > best
+            best = err;
+            pos = i;
         end
     end
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    %Now compare it to our test images and find one in threshold
-    best = 0; pos = 0;
-    for i=1:4
-        im = testimages(:,:,i);
-        MHIImage = double(imread('s00.png'));
-        dist = sqrt(sum((im(:) - MHIImage(:)) .^2));
-        test = mean(im);
-        stdDev = std(double(MHIImage));
-        val = stdDev1 - stdDev2;
-        %err = immse(im,MHIImage);
-        err = ssim(im,MHIImage)
-        K = imabsdiff(im,MHIImage);
-       
-        if err < 1500
-            if err > best
-                best = err;
-                pos = i;
-            end
-        end
+end
+
+if pos ~= 0
+    if pos == 1
+        fprintf("Y");
     end
-    
-    if pos ~= 0
-        if pos == 1
-            fprintf("Y");
-        end
-        if pos == 2
-            fprintf("M");
-        end
-        if pos == 3
-            fprintf("C");
-        end
-        if pos == 4
-            fprintf("A");
-        end
-    else
-        fprintf("Not recognized!");
+    if pos == 2
+        fprintf("M");
+    end
+    if pos == 3
+        fprintf("C");
+    end
+    if pos == 4
+        fprintf("A");
+    end
+else
+    fprintf("Not recognized!");
     end
 
 clear('cam');
