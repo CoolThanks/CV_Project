@@ -1,4 +1,20 @@
-cam = webcam; MHIImage = zeros(100,100); T = 10; colormap(gray); numberOfTrainingImages = 5;
+cam = webcam; 
+MHIImage = zeros(100,100); 
+T = 10; %colormap(gray); 
+numberOfTrainingImages = 10;
+
+%Bring in average MHI's
+yAVG = double(imread('yAVG.png')); yAVG = imresize(yAVG,[100 100]);
+mAVG = double(imread('mAVG.png')); mAVG = imresize(mAVG,[100 100]);
+cAVG = double(imread('cAVG.png')); cAVG = imresize(cAVG,[100 100]);
+aAVG = double(imread('aAVG.png')); aAVG = imresize(aAVG,[100 100]);
+
+%%
+%Set up TCP connection
+tcp_connection = tcpip('127.0.0.1', 10000, 'NetworkRole', 'server');
+fopen(tcp_connection);
+fprintf("Connected...\n");
+%%
 
 %Read y
 for i=1:numberOfTrainingImages
@@ -40,91 +56,67 @@ for i=1:numberOfTrainingImages
     aSTD = std(aImgs,[],3);
 end
 
-pause(3);
-fprintf('GO!');
 
-for i=1:22
-    img = snapshot(cam);
-    img = rgb2gray(img);
-    img = imresize(img,[100 100]);
-    img = double(img);
+fprintf(1,'Starting Demo in 3..');
+pause(1);fprintf(1,'2..');
+pause(1);fprintf(1,'1..');
+pause(1);fprintf(1,'Go!');
+
+%move: 1=y, 2=m, 3=c, 4=a
+move = 1;
+%counter to keep track of movement
+counter = 1;
+while true
+    pause(0.20);
+    img = rgb2gray(snapshot(cam));
+    img = double(imresize(img,[100 100]));
     filtered = imbinarize(img);
     filtered = medfilt2(filtered, [5 5]);
     filtered = bwareafilt(filtered,2);
     filtered = imfill(filtered,'holes');
     filtered = img.*filtered;
-    imgs(:,:,i) = filtered;
-    pause(0.10);
-end
-
-rows = size(imgs(:,:,1), 1);
-columns = size(imgs(:,:,1),2);
-
-for i = 2:21
-    for num_cols = 1:columns
-        for num_rows = 1:rows
-            if abs(imgs(num_rows,num_cols,i)-imgs(num_rows,num_cols,i-1)) > T
-                imgs(num_rows, num_cols,i-1) = 1;
-            else
-                imgs(num_rows, num_cols,i-1) = 0;
-            end
+    imgs(:,:,counter) = filtered;
+    counter = counter + 1;
+    
+    %Determine movement
+    movementFound = determineMovement(imgs, move, counter, ySTD, mSTD, cSTD, aSTD, yAVG, mAVG, cAVG, aAVG);
+    
+    if movementFound == true
+        if move == 1
+            fprintf("Y");
+            move = move + 1;
+        elseif move == 2
+            fprintf("M");
+            move = move + 1;
+        elseif move == 3
+            fprintf("M");
+            move = move + 1;
+        elseif move == 4
+            fprintf("M");
+            move = 1;
+        end
+        fwrite(tcp_connection,"Good");
+    else
+        if move == 1 && counter > 7
+            fprintf("Not recognized!");
+            fwrite(tcp_connection,"Bad");
+            move = move + 1;
+        elseif move == 2 && counter > 14
+            fprintf("Not recognized!");
+            fwrite(tcp_connection,"Bad");
+            move = move + 1;
+        elseif move == 3 && counter > 18
+            fprintf("Not recognized!");
+            fwrite(tcp_connection,"Bad");
+            move = move + 1;
+        elseif move == 4 && counter > 22
+            fprintf("Not recognized!");
+            fwrite(tcp_connection,"Bad");
+            move = 1;
+            counter = 1;
+            imgs = [];
         end
     end
 end
-
-for i=2:20
-    for num_cols = 1:columns
-        for num_rows = 1:rows
-            if (imgs(num_rows,num_cols,i) ~= 0)
-                MHIImage(num_rows, num_cols) = i;
-            end
-        end
-    end
-end
-
-MHIImage = max(0,(MHIImage-1)/21);
-imwrite(MHIImage,'test.png');
-
-movement = determineMovement(imgs, ySTD, mSTD, cSTD, aSTD);
-
-
-
-%Now compare it to our test images and find one in threshold
-best = 0; pos = 0;
-for i=1:4
-    im = testimages(:,:,i);
-    MHIImage = double(imread('s00.png'));
-    dist = sqrt(sum((im(:) - MHIImage(:)) .^2));
-    test = mean(im);
-    stdDev = std(double(MHIImage));
-    val = stdDev1 - stdDev2;
-    %err = immse(im,MHIImage);
-    err = ssim(im,MHIImage)
-    K = imabsdiff(im,MHIImage);
-
-    if err < 1500
-        if err > best
-            best = err;
-            pos = i;
-        end
-    end
-end
-
-if pos ~= 0
-    if pos == 1
-        fprintf("Y");
-    end
-    if pos == 2
-        fprintf("M");
-    end
-    if pos == 3
-        fprintf("C");
-    end
-    if pos == 4
-        fprintf("A");
-    end
-else
-    fprintf("Not recognized!");
-    end
 
 clear('cam');

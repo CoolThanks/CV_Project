@@ -1,4 +1,4 @@
-%% Load Avg MHI's
+anac%% Load Avg MHI's
 
 yimg = double(imread('MHIs/Y/yAVG.png'));
 mimg = double(imread('MHIs/M/mAVG.png'));
