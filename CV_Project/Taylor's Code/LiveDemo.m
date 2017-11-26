@@ -1,6 +1,6 @@
-cam = webcam; 
+cam = webcam(2); 
 MHIImage = zeros(100,100); 
-T = 10; %colormap(gray); 
+T = 10; colormap(gray); 
 numberOfTrainingImages = 10;
 
 %Bring in average MHI's
@@ -66,8 +66,9 @@ pause(1);fprintf(1,'Go!');
 move = 1;
 %counter to keep track of movement
 counter = 1;
+startFrom = 2;
 while true
-    pause(0.20);
+    pause(0.1);
     img = rgb2gray(snapshot(cam));
     img = double(imresize(img,[100 100]));
     filtered = imbinarize(img);
@@ -75,42 +76,56 @@ while true
     filtered = bwareafilt(filtered,2);
     filtered = imfill(filtered,'holes');
     filtered = img.*filtered;
+    %imagesc(filtered);
     imgs(:,:,counter) = filtered;
+    movementFound = false;
+    %Determine movement
+    if counter > 1
+        movementFound = determineMovement(imgs, move, counter, ySTD, mSTD, cSTD, aSTD, yAVG, mAVG, cAVG, aAVG, startFrom);
+    end
     counter = counter + 1;
     
-    %Determine movement
-    movementFound = determineMovement(imgs, move, counter, ySTD, mSTD, cSTD, aSTD, yAVG, mAVG, cAVG, aAVG);
-    
     if movementFound == true
+        startFrom = counter-1;
         if move == 1
-            fprintf("Y");
+            fprintf("Y\n");
             move = move + 1;
         elseif move == 2
-            fprintf("M");
+            fprintf("M\n");
             move = move + 1;
         elseif move == 3
-            fprintf("M");
+            fprintf("C\n");
             move = move + 1;
         elseif move == 4
-            fprintf("M");
+            fprintf("A\n");
             move = 1;
+            startFrom = 2;
+            counter = 1;
         end
         fwrite(tcp_connection,"Good");
     else
-        if move == 1 && counter > 7
-            fprintf("Not recognized!");
+        if move == 1 && counter > 20
+            startFrom = 20;
+            fprintf("Not recognized!\n");
             fwrite(tcp_connection,"Bad");
             move = move + 1;
-        elseif move == 2 && counter > 14
-            fprintf("Not recognized!");
+            imgs = [];
+        elseif move == 2 && counter > 40
+            startFrom = 40;
+            fprintf("Not recognized!\n");
             fwrite(tcp_connection,"Bad");
             move = move + 1;
-        elseif move == 3 && counter > 18
-            fprintf("Not recognized!");
+            imgs = [];
+        elseif move == 3 && counter > 50
+            startFrom = 50;
+            fprintf("Not recognized!\n");
             fwrite(tcp_connection,"Bad");
             move = move + 1;
-        elseif move == 4 && counter > 22
-            fprintf("Not recognized!");
+            imgs = [];
+        elseif move == 4 && counter > 60
+            startFrom = 2;
+            %imwrite(uint8(imgs(:,:,5)),'TEST2.png');
+            fprintf("Not recognized! Restarting!\n");
             fwrite(tcp_connection,"Bad");
             move = 1;
             counter = 1;

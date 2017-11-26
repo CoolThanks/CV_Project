@@ -7,7 +7,8 @@ using System.Text;
 using System;
 using UnityEngine.UI;
 
-public class TCP_Connection : MonoBehaviour {
+public class TCP_Connection : MonoBehaviour
+{
 
 	public Text countText;
 	public Image current;
@@ -17,8 +18,12 @@ public class TCP_Connection : MonoBehaviour {
 	public Sprite[] m;
 	public Sprite[] c;
 	public Sprite[] a;
-	int yCounter = 0; int mCounter = 0; int cCounter = 0; int aCounter = 0;
-	int move = 1; //1==y 2==m 3==c 4==d
+	int yCounter = 0;
+	int mCounter = 0;
+	int cCounter = 0;
+	int aCounter = 0;
+	int move = 1;
+	//1==y 2==m 3==c 4==d
 	private int count;
 	public Stream stream;
 	byte[] data = new byte[256];
@@ -28,33 +33,39 @@ public class TCP_Connection : MonoBehaviour {
 	byte[] checkstring = new byte[256];
 	bool changed;
 
-	void Start () {
+	void Start ()
+	{
 		count = 0;
 		SetCountText ();
 		InvokeRepeating ("Images", 0.0f, 0.1f);
 		stream = Connect ("127.0.0.1", "begin", data);
-		checkstring = System.Text.Encoding.ASCII.GetBytes("good\r\n");
+		stream.ReadTimeout = 10;
+		checkstring = System.Text.Encoding.ASCII.GetBytes ("good\r\n");
 	}
 
-	void Images(){
+	void Images ()
+	{
 		if (move == 1) {
-			current.GetComponent<Image> ().sprite = y[yCounter];
-			next.GetComponent<Image> ().sprite = m[mCounter];
-			future.GetComponent<Image> ().sprite = c[cCounter];
+			current.GetComponent<Image> ().sprite = y [yCounter];
+			next.GetComponent<Image> ().sprite = m [mCounter];
+			future.GetComponent<Image> ().sprite = c [cCounter];
 		} else if (move == 2) {
-			current.GetComponent<Image> ().sprite = m[mCounter];
-			next.GetComponent<Image> ().sprite = c[cCounter];
-			future.GetComponent<Image> ().sprite = a[aCounter];
+			current.GetComponent<Image> ().sprite = m [mCounter];
+			next.GetComponent<Image> ().sprite = c [cCounter];
+			future.GetComponent<Image> ().sprite = a [aCounter];
 		} else if (move == 3) {
-			current.GetComponent<Image> ().sprite = c[cCounter];
-			next.GetComponent<Image> ().sprite = a[aCounter];
-			future.GetComponent<Image> ().sprite = y[yCounter];
+			current.GetComponent<Image> ().sprite = c [cCounter];
+			next.GetComponent<Image> ().sprite = a [aCounter];
+			future.GetComponent<Image> ().sprite = y [yCounter];
 		} else if (move == 4) {
-			current.GetComponent<Image> ().sprite = a[aCounter];
-			next.GetComponent<Image> ().sprite = y[yCounter];
-			future.GetComponent<Image> ().sprite = m[mCounter];
+			current.GetComponent<Image> ().sprite = a [aCounter];
+			next.GetComponent<Image> ().sprite = y [yCounter];
+			future.GetComponent<Image> ().sprite = m [mCounter];
 		}
-		yCounter++; mCounter++; cCounter++; aCounter++;
+		yCounter++;
+		mCounter++;
+		cCounter++;
+		aCounter++;
 		if (yCounter > 17) {
 			yCounter = 0;
 		}
@@ -69,22 +80,24 @@ public class TCP_Connection : MonoBehaviour {
 		}
 	}
 
-	void Update () {
+	void Update ()
+	{
 		if (stream == null) {
 			return;
 		}
-
-		bytes = stream.Read (data, 0, data.Length);
-		if (responseData != System.Text.Encoding.ASCII.GetString (data, 0, bytes)) {
-			changed = true;
+		try {
+			bytes = stream.Read (data, 0, data.Length);
+			if (responseData != System.Text.Encoding.ASCII.GetString (data, 0, bytes)) {
+				changed = true;
+			}
+			responseData = System.Text.Encoding.ASCII.GetString (data, 0, bytes);
+		} catch (Exception e) {
+			responseData = "";
 		}
-		responseData = System.Text.Encoding.ASCII.GetString (data, 0, bytes);
 		if (responseData.Length > 0) {
-			Debug.Log (responseData.ToString ());
+			//Debug.Log (responseData.ToString ());
 			if (responseData.ToString ().Equals ("Good")) {
 				count = count + 50;
-			} else {
-				count = count + 15;
 			}
 			move++;
 			yCounter = 0;
@@ -95,6 +108,7 @@ public class TCP_Connection : MonoBehaviour {
 				move = 1;
 			}
 		}
+		stream.Flush ();
 	}
 
 	void SetCountText ()
@@ -102,7 +116,7 @@ public class TCP_Connection : MonoBehaviour {
 		countText.text = "Score: " + count.ToString ();
 	}
 
-	static Stream Connect(String server, String message, Byte[] data) 
+	static Stream Connect (String server, String message, Byte[] data)
 	{
 
 		try {
@@ -111,7 +125,7 @@ public class TCP_Connection : MonoBehaviour {
 
 			// Translate the passed message into ASCII and store it as a Byte array.
 			data = System.Text.Encoding.ASCII.GetBytes (message);         
-			Stream stream = client.GetStream();
+			Stream stream = client.GetStream ();
 			stream.Write (data, 0, data.Length);
 			data = new Byte[256];
 			Debug.Log (System.Text.Encoding.ASCII.GetString (data));
@@ -119,7 +133,7 @@ public class TCP_Connection : MonoBehaviour {
 
 		} catch (ArgumentNullException e) {
 			Debug.Log (e);
-			Application.Quit();
+			Application.Quit ();
 			return null;
 		} catch (SocketException e) {
 			Debug.Log (e);
