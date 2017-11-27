@@ -1,3 +1,46 @@
+%{
+Author: Taylor Ripke
+Course: CSE 5524
+Date:   11/28/2017
+
+Brief Overview: Initially, a TCP connection is established with Unity for
+visual purposes. Next, preexisting data is preprocessed and stored. The
+process starts by gathering images from a live camera feed and sending them
+to determineMovement, which calls functions to generate the MHI and compute
+the error. It also acts as a backward looking window for the program. 
+
+ Primary Scripts:
+> LiveDemo -> Main program - calls determineMovement, which returns
+true/false depending if a movement was found.
+
+> determineMovement -> Called from Main, calls generateMHI and compute
+Error. Has a threshold value TIMG, which determines whether a movement is
+considered found. Acts as the backward looking window, which takes a
+sequence of images and progressively searches for a movement. If one is
+found, it starts looking for the next immediately, otherwise, after a
+specified amount of frames, will start searching for another.
+
+> generateMHI -> Given a sequence of images, it generates the corresponding
+MHI for those images and returns it back to the calling function
+determineMovement. Has one threshold T which is used in the calculation of
+the MHI.
+
+> computeError -> Given the MHI, current move, and respective mean/std
+data, will compute for each pixel whether or not the test image is within
+how many ever standard deviations of the mean image. It will return the
+amount of pixels within the accepted range.
+
+Secondary Scripts:
+> MHI -> This script was used to generate the MHIs from the edited videos.
+
+> FilterImage -> This script was used to test filtering on the images and
+clean them up once the initial MHI was generated.
+
+> ResizeImages -> A small script to resize the images once the initial
+MHI's were generated.
+%}
+
+
 cam = webcam(2); 
 MHIImage = zeros(100,100); 
 T = 10; colormap(gray); 
@@ -9,12 +52,12 @@ mAVG = double(imread('mAVG.png')); mAVG = imresize(mAVG,[100 100]);
 cAVG = double(imread('cAVG.png')); cAVG = imresize(cAVG,[100 100]);
 aAVG = double(imread('aAVG.png')); aAVG = imresize(aAVG,[100 100]);
 
-%%
+
 %Set up TCP connection
 tcp_connection = tcpip('127.0.0.1', 10000, 'NetworkRole', 'server');
 fopen(tcp_connection);
 fprintf("Connected...\n");
-%%
+
 
 %Read y
 for i=1:numberOfTrainingImages
@@ -81,7 +124,7 @@ while true
     movementFound = false;
     %Determine movement
     if counter > 1
-        movementFound = determineMovement(imgs, move, counter, ySTD, mSTD, cSTD, aSTD, yAVG, mAVG, cAVG, aAVG, startFrom);
+        movementFound = determineMovement(imgs, move, ySTD, mSTD, cSTD, aSTD, yAVG, mAVG, cAVG, aAVG, startFrom);
     end
     counter = counter + 1;
     

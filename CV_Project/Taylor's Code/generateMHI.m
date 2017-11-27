@@ -1,3 +1,15 @@
+%{
+Author: Taylor Ripke
+Course: CSE 5524
+Date:   11/28/2017
+
+> generateMHI -> Given a sequence of images, it generates the corresponding
+MHI for those images and returns it back to the calling function
+determineMovement. Has one threshold T which is used in the calculation of
+the MHI.
+
+%}
+
 function [ MHIImage ] = generateMHI( imgs, startFrom )
 rows = size(imgs(:,:,1), 1);
 columns = size(imgs(:,:,1),2);
