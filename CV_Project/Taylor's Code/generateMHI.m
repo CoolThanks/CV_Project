@@ -10,45 +10,54 @@ the MHI.
 
 %}
 
-function [ MHIImage ] = generateMHI( imgs, startFrom, scaleMe)
+function [ MHIImage, imgs, imgs2, startFrom] = generateMHI( imgs, imgs2, startFrom, scaleMe, alpha)
 rows = size(imgs(:,:,1), 1);
 columns = size(imgs(:,:,1),2);
 if (scaleMe)
     MHIImage = zeros(100,100);
 end
-T = 10;
+T = 10*ones(size(imgs,1),size(imgs,2));
 dim = size(imgs,3);
 colormap(gray); 
 
-for i = startFrom:dim
-    for num_cols = 1:columns
-        for num_rows = 1:rows
-            if abs(imgs(num_rows,num_cols,i)-imgs(num_rows,num_cols,i-1)) > T
-                imgs(num_rows, num_cols,i-1) = 1;
-            else
-                imgs(num_rows, num_cols,i-1) = 0;
-            end
+%do shit here
+while(1)
+    if(alpha*dim > startFrom)
+        startFrom = startFrom + 1;
+        imgs2(:,:,dim-1) = imgs2(:,:,dim-1) .* (imgs2(:,:,dim-1) > startFrom-2);
+    else
+        break;
+    end
+end
+
+
+imgs2(:,:,dim) = abs(imgs(:,:, dim)-imgs(:,:,dim-1)) > T;
+    
+% if dim == 3
+%     pause;
+% end
+if dim == 2
+    MHIImage = zeros(rows,columns);
+else
+    MHIImage = imgs2(:,:,dim-1);
+end
+for num_cols = 1:columns
+    for num_rows = 1:rows
+        if (imgs2(num_rows,num_cols,dim) ~= 0)
+            MHIImage(num_rows, num_cols) = dim-startFrom+1;
         end
     end
 end
 
-for i=startFrom:dim-1
-    for num_cols = 1:columns
-        for num_rows = 1:rows
-            if (imgs(num_rows,num_cols,i) ~= 0)
-                MHIImage(num_rows, num_cols) = i-startFrom;
-            end
-        end
-    end
-end
-
-MHIImage = max(0,(MHIImage-1)/dim);
+imgs2(:,:,dim) = MHIImage;
+MHIImage = max(0,(MHIImage)/dim);
 
 filtered = imbinarize(MHIImage);
 filtered = medfilt2(filtered, [5 5]);
 filtered = bwareafilt(filtered,2);
 filtered = imfill(filtered,'holes');
 MHIImage = MHIImage.*filtered;
+
 
 figure(2);
 imagesc(MHIImage);

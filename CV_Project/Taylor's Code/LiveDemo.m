@@ -47,10 +47,10 @@ T = 10; colormap(gray);
 numberOfTrainingImages = 10;
 
 %Bring in average MHI's
-yAVG = double(imread('yAVG.png')); yAVG = imresize(yAVG,[100 100]);
-mAVG = double(imread('mAVG.png')); mAVG = imresize(mAVG,[100 100]);
-cAVG = double(imread('cAVG.png')); cAVG = imresize(cAVG,[100 100]);
-aAVG = double(imread('aAVG.png')); aAVG = imresize(aAVG,[100 100]);
+yAVG = double(imread('y03.png')); yAVG = imresize(yAVG,[100 100]);
+mAVG = double(imread('m08.png')); mAVG = imresize(mAVG,[100 100]);
+cAVG = double(imread('c00.png')); cAVG = imresize(cAVG,[100 100]);
+aAVG = double(imread('a08.png')); aAVG = imresize(aAVG,[100 100]);
 
 
 %Set up TCP connection
@@ -110,13 +110,22 @@ move = 1;
 %counter to keep track of movement
 counter = 1;
 startFrom = 2;
+alpha = .4;
+warning('off')
+v = VideoReader('m02.mp4');
+mov = struct('cdata',zeros(360,640,1,'uint8'),...
+    'colormap',[]);
+targetScore = 6000;
 while true
+%      video = readFrame(v);
+%     video = rgb2gray(video);
+%     video = imresize(video,0.5);
 %     pause(0.1);
      pic = snapshot(cam);
      img = rgb2gray(pic);
 %     figure(1);
 %     imshow(pic);
-    img = double(imresize(img,[100 100]));
+     img = double(imresize(img,[100 100]));
 %     filtered = imbinarize(img);
 %     filtered = medfilt2(filtered, [5 5]);
 %     filtered = bwareafilt(filtered,2);
@@ -125,10 +134,11 @@ while true
 %     
     %imagesc(filtered);
     imgs(:,:,counter) = img;
+    imgs2(:,:,counter) = img;
     movementFound = false;
     %Determine movement
     if counter > 1
-        movementFound = determineMovement(imgs, move, ySTD, mSTD, cSTD, aSTD, yAVG, mAVG, cAVG, aAVG, startFrom);
+        [movementFound, imgs, imgs2, startFrom, targetScore, score] = determineMovement(imgs, imgs2, move, ySTD, mSTD, cSTD, aSTD, yAVG, mAVG, cAVG, aAVG, startFrom, alpha, targetScore);
     end
     counter = counter + 1;
     
@@ -137,46 +147,67 @@ while true
         if move == 1
             fprintf("Y\n");
             move = move + 1;
+            alpha = .5;
+            targetScore = 9259;
         elseif move == 2
             fprintf("M\n");
             move = move + 1;
+            alpha =.2;
+            targetScore = 7318;
         elseif move == 3
             fprintf("C\n");
             move = move + 1;
+            alpha = .7;
+            targetScore = 9050;
         elseif move == 4
             fprintf("A\n");
             move = 1;
             startFrom = 2;
             counter = 1;
+            targetScore = 8300;
+            break;
         end
         fwrite(tcp_connection,"Good");
     else
         if move == 1 && counter > 30
-            startFrom = 30;
+            %startFrom = 30;
             fprintf("Not recognized!\n");
+            %score
             fwrite(tcp_connection,"Bad");
             move = move + 1;
+            alpha = .5;
             %imgs = [];
-        elseif move == 2 && counter > 40
-            startFrom = 40;
+            targetScore = 9259;
+        elseif move == 2 && counter > 45
+            %startFrom = 40;
             fprintf("Not recognized!\n");
+            %score
             fwrite(tcp_connection,"Bad");
             move = move + 1;
+            alpha = .5;
             %imgs = [];
-        elseif move == 3 && counter > 50
-            startFrom = 50;
+            targetScore = 7318;
+        elseif move == 3 && counter > 55
+            %startFrom = 50;
             fprintf("Not recognized!\n");
+            %score
             fwrite(tcp_connection,"Bad");
             move = move + 1;
+            alpha = .7;
+            targetScore = 9050;
             %imgs = [];
-        elseif move == 4 && counter > 60
+        elseif move == 4 && counter > 65
             startFrom = 2;
             %imwrite(uint8(imgs(:,:,5)),'TEST2.png');
             fprintf("Not recognized! Restarting!\n");
+            %score
             fwrite(tcp_connection,"Bad");
             move = 1;
             counter = 1;
             imgs = [];
+            imgs2 = [];
+            targetScore = 5000;
+            break;
         end
     end
 end

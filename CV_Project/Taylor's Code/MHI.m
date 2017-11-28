@@ -10,7 +10,7 @@ counter = 1;
 notI=2;
 k=1;
 T = 10;
-v = VideoReader('y02.mp4');
+v = VideoReader('m02.mp4');
 mov = struct('cdata',zeros(360,640,1,'uint8'),...
     'colormap',[]);
 
