@@ -10,13 +10,15 @@ the MHI.
 
 %}
 
-function [ MHIImage ] = generateMHI( imgs, startFrom )
+function [ MHIImage ] = generateMHI( imgs, startFrom, scaleMe)
 rows = size(imgs(:,:,1), 1);
 columns = size(imgs(:,:,1),2);
-MHIImage = zeros(100,100);
-T = 5;
+if (scaleMe)
+    MHIImage = zeros(100,100);
+end
+T = 10;
 dim = size(imgs,3);
-%colormap(gray); 
+colormap(gray); 
 
 for i = startFrom:dim
     for num_cols = 1:columns
@@ -42,5 +44,13 @@ end
 
 MHIImage = max(0,(MHIImage-1)/dim);
 
+filtered = imbinarize(MHIImage);
+filtered = medfilt2(filtered, [5 5]);
+filtered = bwareafilt(filtered,2);
+filtered = imfill(filtered,'holes');
+MHIImage = MHIImage.*filtered;
+
+figure(2);
+imagesc(MHIImage);
 end
 

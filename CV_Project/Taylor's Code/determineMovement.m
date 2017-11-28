@@ -16,7 +16,11 @@ TIMG = 9700;
 dim = size(imgs,3);
 movementFound = false;
 for i=startFrom:dim
-    MHI = generateMHI(imgs, startFrom);
+    MHI = generateMHI(imgs, startFrom, true);
+%     if dim == 15
+%         imwrite(MHI,'TEST7.png');
+%         pause;
+%     end
     score = computeError(MHI, move, ySTD, mSTD, cSTD, aSTD, yAVG, mAVG, cAVG, aAVG);
     %score
     if score > TIMG

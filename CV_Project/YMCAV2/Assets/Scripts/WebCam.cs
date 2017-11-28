@@ -8,7 +8,9 @@ public class WebCam : MonoBehaviour {
 	public RawImage rawimage;
 	// Use this for initialization
 	void Start () {
+		WebCamDevice[] devices = WebCamTexture.devices;
 		WebCamTexture webcamTexture = new WebCamTexture();
+		webcamTexture.deviceName = devices[2].name;
 		rawimage.texture = webcamTexture;
 		rawimage.material.mainTexture = webcamTexture; 
 		webcamTexture.Play();

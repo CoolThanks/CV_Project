@@ -41,7 +41,7 @@ MHI's were generated.
 %}
 
 
-cam = webcam(2); 
+cam = webcam(); 
 MHIImage = zeros(100,100); 
 T = 10; colormap(gray); 
 numberOfTrainingImages = 10;
@@ -111,16 +111,20 @@ move = 1;
 counter = 1;
 startFrom = 2;
 while true
-    pause(0.1);
-    img = rgb2gray(snapshot(cam));
+%     pause(0.1);
+     pic = snapshot(cam);
+     img = rgb2gray(pic);
+%     figure(1);
+%     imshow(pic);
     img = double(imresize(img,[100 100]));
-    filtered = imbinarize(img);
-    filtered = medfilt2(filtered, [5 5]);
-    filtered = bwareafilt(filtered,2);
-    filtered = imfill(filtered,'holes');
-    filtered = img.*filtered;
+%     filtered = imbinarize(img);
+%     filtered = medfilt2(filtered, [5 5]);
+%     filtered = bwareafilt(filtered,2);
+%     filtered = imfill(filtered,'holes');
+%     filtered = img.*filtered;
+%     
     %imagesc(filtered);
-    imgs(:,:,counter) = filtered;
+    imgs(:,:,counter) = img;
     movementFound = false;
     %Determine movement
     if counter > 1
@@ -147,24 +151,24 @@ while true
         end
         fwrite(tcp_connection,"Good");
     else
-        if move == 1 && counter > 20
-            startFrom = 20;
+        if move == 1 && counter > 30
+            startFrom = 30;
             fprintf("Not recognized!\n");
             fwrite(tcp_connection,"Bad");
             move = move + 1;
-            imgs = [];
+            %imgs = [];
         elseif move == 2 && counter > 40
             startFrom = 40;
             fprintf("Not recognized!\n");
             fwrite(tcp_connection,"Bad");
             move = move + 1;
-            imgs = [];
+            %imgs = [];
         elseif move == 3 && counter > 50
             startFrom = 50;
             fprintf("Not recognized!\n");
             fwrite(tcp_connection,"Bad");
             move = move + 1;
-            imgs = [];
+            %imgs = [];
         elseif move == 4 && counter > 60
             startFrom = 2;
             %imwrite(uint8(imgs(:,:,5)),'TEST2.png');
