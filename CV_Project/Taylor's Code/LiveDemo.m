@@ -123,17 +123,8 @@ while true
 %     pause(0.1);
      pic = snapshot(cam);
      img = rgb2gray(pic);
-%     figure(1);
-%     imshow(pic);
      img = double(imresize(img,[100 100]));
-%     filtered = imbinarize(img);
-%     filtered = medfilt2(filtered, [5 5]);
-%     filtered = bwareafilt(filtered,2);
-%     filtered = imfill(filtered,'holes');
-%     filtered = img.*filtered;
-%     
-    %imagesc(filtered);
-    imgs(:,:,counter) = img;
+     imgs(:,:,counter) = img;
     imgs2(:,:,counter) = img;
     movementFound = false;
     %Determine movement
@@ -171,7 +162,7 @@ while true
     else
         if move == 1 && counter > 30
             %startFrom = 30;
-            fprintf("Not recognized!\n");
+            fprintf("\nDidn't recognize Y!\n");
             %score
             fwrite(tcp_connection,"Bad");
             move = move + 1;
@@ -180,7 +171,7 @@ while true
             targetScore = 9259;
         elseif move == 2 && counter > 45
             %startFrom = 40;
-            fprintf("Not recognized!\n");
+            fprintf("Didn't recognize M!\n");
             %score
             fwrite(tcp_connection,"Bad");
             move = move + 1;
@@ -189,7 +180,7 @@ while true
             targetScore = 7318;
         elseif move == 3 && counter > 55
             %startFrom = 50;
-            fprintf("Not recognized!\n");
+            fprintf("Didn't recognize C!\n");
             %score
             fwrite(tcp_connection,"Bad");
             move = move + 1;
@@ -199,7 +190,7 @@ while true
         elseif move == 4 && counter > 65
             startFrom = 2;
             %imwrite(uint8(imgs(:,:,5)),'TEST2.png');
-            fprintf("Not recognized! Restarting!\n");
+            fprintf("Didn't recognize A!\n");
             %score
             fwrite(tcp_connection,"Bad");
             move = 1;

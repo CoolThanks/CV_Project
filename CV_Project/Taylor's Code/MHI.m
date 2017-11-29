@@ -13,12 +13,11 @@ T = 10;
 v = VideoReader('m02.mp4');
 mov = struct('cdata',zeros(360,640,1,'uint8'),...
     'colormap',[]);
-
-while hasFrame(v)
-    video = readFrame(v);
-    video = rgb2gray(video);
-    video = imresize(video,0.5);
-    Im(:,:,counter) = video;
+cam = webcam(); 
+while counter < 20
+    pic = snapshot(cam);
+     img = rgb2gray(pic);
+    Im(:,:,counter) = img;
     counter = counter + 1;
 end
 
@@ -55,4 +54,4 @@ end
 
 MHIImage = max(0,(MHIImage-1)/counter);
 imagesc(MHIImage);
-imwrite(MHIImage,'test.png');
+imwrite(MHIImage,'a99.png');

@@ -23,7 +23,7 @@ for i=startFrom:dim
 %     end
     score = computeError(MHIImage, move, ySTD, mSTD, cSTD, aSTD, yAVG, mAVG, cAVG, aAVG);
     
-    if (abs(score-targetScore) < 100)
+    if (abs(score-targetScore) < 1)
         filename = sprintf('wow%03d.png', move);
         imwrite(MHIImage,filename);
         %move

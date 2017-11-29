@@ -1,13 +1,13 @@
 %% Load Avg MHI's
 
-yimg = double(imread('MHIs/Y/yAVG2.png'));
-mimg = double(imread('MHIs/M/mAVG2.png'));
-cimg = double(imread('MHIs/C/cAVG2.png'));
-aimg = double(imread('MHIs/A/aAVG2.png'));
+yimg = double(imread('MHIs/Y/Individuals/y99.png'));
+mimg = double(imread('MHIs/M/Individuals/m99.png'));
+cimg = double(imread('MHIs/C/Individuals/c99.png'));
+aimg = double(imread('MHIs/A/Individuals/a99.png'));
 %figure();
 %imagesc(yimg);
 y_nval(1,:) = similitudeMoments(yimg);
-m_nval(1,:) = similitudeMoments(mimg);
+m_nval(1,:) = similitudeMoments(mimg)
 c_nval(1,:) = similitudeMoments(cimg);
 a_nval(1,:) = similitudeMoments(aimg);
 for i=0:9
@@ -49,21 +49,22 @@ end
 clear cam; 
 clear pics;
 clear pic;
+clear pics2;
 clear eval;
 cam = webcam(1);  % For me this is splitcam- make sure that you call 
 % "webcamlist" to find out which index is splitcam for you
 
-% tcp_connection = tcpip('127.0.0.1', 10000, 'NetworkRole', 'server');
-% fopen(tcp_connection);
-% fprintf("Connected...\n");
+tcp_connection = tcpip('127.0.0.1', 10000, 'NetworkRole', 'server');
+fopen(tcp_connection);
+fprintf("Connected...\n");
 count = 1;
 pause(1);
 fprintf("go!\n");
-pause(.25);
+pause(2);
 for i =1:1000
     pic = snapshot(cam);
-    %figure(1);        %use these two lines to view the video
-    %imshow(pic);
+%     figure(1);        %use these two lines to view the video
+%     imshow(pic);
 %     filtered = imbinarize(pic);
 %     filtered = medfilt2(filtered, [5 5]);
 %     filtered = bwareafilt(filtered,2);
@@ -71,16 +72,17 @@ for i =1:1000
 %     filtered = pic.*filtered;
     %imagesc(filtered);
     pics(:,:,i) = rgb2gray(pic);
-    eval = evaluate(pics, stddev, stddevm, stddevc, stddeva, y_nval(1,:), count);
-    if (eval == "Good")
-%         fwrite(tcp_connection,"Good");
+    pics2(:,:,i) = rgb2gray(pic);
+    [eval, dummy, pics, pics2] = evaluate(pics, pics2, 2, stddev, stddevm, stddevc, stddeva, y_nval(1,:), m_nval(1,:), c_nval(1,:), a_nval(1,:), count);
+    if (eval == "good")
+          fwrite(tcp_connection,"Good");
           fprintf("good\n");
           count = count + 1;
     else
         if (eval == "next")
             continue;
         else
-%             fwrite(tcp_connection,"Bad");
+              fwrite(tcp_connection,"Bad");
               fprintf("bad\n");
               count = count + 1;
         end

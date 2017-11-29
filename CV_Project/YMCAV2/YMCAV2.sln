@@ -1,9 +1,9 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2008
-
-Project("{12AAB796-89A8-1097-4FF9-221B37F1F8E8}") = "YMCAV2", "Assembly-CSharp.csproj", "{E2FE18AA-2DCB-1DF0-8DA5-905CD1F05F8D}"
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YMCAV2", "Assembly-CSharp.csproj", "{E2FE18AA-2DCB-1DF0-8DA5-905CD1F05F8D}"
 EndProject
-Project("{12AAB796-89A8-1097-4FF9-221B37F1F8E8}") = "YMCAV2", "Assembly-CSharp-Editor.csproj", "{C87141AB-39C5-CDD8-C317-F523D4A71CC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YMCAV2", "Assembly-CSharp-Editor.csproj", "{C87141AB-39C5-CDD8-C317-F523D4A71CC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,8 +23,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-			GlobalSection(MonoDevelopProperties) = preSolution
+	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 	EndGlobalSection
-
 EndGlobal

@@ -1,0 +1,78 @@
+%{
+Author: Taylor Ripke
+Date:   11/19/2017
+
+Premise: Background Subtraction. Assume a fixed camera. Given the ground
+truth background, we can create a bounding box around a person by takin the
+background and subtracting to see whether it is within a given threshold.
+Then, once the differening pixels have been identified, post-processing is
+done on the image to keep only the largest blob, and finally a bounding box
+is generated. That image is then transformed into a 100x100 box which is
+then compared to the MHIs.
+
+%}
+
+%Initalize camera
+cam = webcam();
+colormap(gray);
+
+%Get background image
+background = snapshot(cam);
+background = rgb2gray(background);
+
+fprintf("Put hand");
+pause(2);
+
+%Threshold for background subtraction
+T = 10;
+
+%In an infinite loop
+while true
+    %Get an image from camera
+    img = snapshot(cam);
+    img = rgb2gray(img);
+    
+    %Perform background subtraction
+    rows = size(background, 1);
+    columns = size(background,2);
+    for num_cols = 1:columns
+        for num_rows = 1:rows
+            if abs(background(num_rows, num_cols) - img(num_rows, num_cols)) > T
+                img(num_rows, num_cols) = 1;
+            else
+                img(num_rows, num_cols) = 0;
+            end
+        end
+    end
+    
+    %Filter the image
+    img = double(img);
+    filtered = imbinarize(img);
+    filtered = medfilt2(filtered, [5 5]);
+    filtered = imfill(filtered,'holes');
+    filtered = bwareaopen(filtered,100);
+    filtered = img.*filtered;
+    
+    imagesc(filtered);
+    
+    %Find boundaries of person
+    up = -1; down = -1; left = -1; right = -1;
+    
+    %Left/Right
+    for num_cols = 1:columns
+        for num_rows = 1:rows
+            if filtered(num_rows, num_cols) == 1 && left == -1
+                LX = num_rows;
+                LY = num_cols;
+                left = 0;
+            else
+                RX = num_rows;
+                RY = num_cols;
+            end
+            
+        end
+    end
+    
+    pause;
+end
+clear('cam');
